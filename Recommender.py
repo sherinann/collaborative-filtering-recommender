@@ -11,16 +11,16 @@ def recommend(ind,row):
 
 data = pd.read_csv('Movie_Ratings.csv', header=None)
 data = data.replace(np.nan, 0)
-print(type(data))
 try:
 
     col = len(data[0])
     row = len(list(data))
     # ind=manhatten(col,row)
     k=SimilarityMeasures()
-
-    distance=k.manhattenDistance(1,data)
-    print(distance)
+    dis=k.cosineSimilarity(data,1)
+    print(dis)
+    #distance=k.manhattenDistance(1,data)
+    #print(distance)
     # k.pearsonCorrelation_k_nearest(data)
     # k.pearson_correlation_k_nearest(row, col, data)
     # ind=cosine_similarity(row,col)

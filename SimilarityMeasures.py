@@ -34,19 +34,18 @@ class SimilarityMeasures:
             if sum<val:
                 val=sum
                 indexSimilar=j
-        print(data[indexSimilar][0])
         return indexSimilar
 
     @multimethod(object,int,int,pandas.core.frame.DataFrame)
-    def manhattenDistance(self,col1,col2,data):
-        print(data[col1][0])
-        print(data[col2][0])
+    def manhattenDistance(self,user1,user2,data):
+        print(data[user1][0])
+        print(data[user2][0])
         row = self.getRow(data)
         sum=0
         for i in range(1,row):
-            if(int(data[col1][i])==0 or int(data[col2][i])==0):
+            if(int(data[user1][i])==0 or int(data[user2][i])==0):
                 continue
-            sum=sum+abs(int(data[col1][i])-int(data[col2][i]))
+            sum=sum+abs(int(data[user1][i])-int(data[user2][i]))
         return sum
 
 
@@ -98,19 +97,33 @@ class SimilarityMeasures:
         Models.k_near_recommend(k1,k2,k3,r1[arr[0]],r1[arr[1]],r1[arr[2]],row,data)
         return
 
+    @multimethod(object,pandas.core.frame.DataFrame,int,int)
+    def cosineSimilarity(self, data,user1,user2):
+        row = self.getRow(data)
+        xy = 0
+        x1 = 0
+        y1 = 0
+        for i in range(1, row):
+            xy = xy + int(data[user1][i]) * int(data[user2][i])
+            x1 = x1 + int(data[user1][i]) * int(data[user1][i])
+            y1 = y1 + int(data[user2][i]) * int(data[user2][i])
+        r = xy / (np.sqrt(x1) * np.sqrt(y1))
+        return r
 
-
-    def cosineSimilarity(self,data):
+    @multimethod(object,pandas.core.frame.DataFrame,int)
+    def cosineSimilarity(self,data,user):
         row=self.getRow(data)
         col=self.getColoumn(data)
         r1=-1
-        for j in range(2,col):
+        for j in range(1,col):
+            if j==user:
+                continue
             xy=0
             x1=0
             y1=0
             for i in range(1,row):
-                xy=xy+int(data[1][i])*int(data[j][i])
-                x1=x1+int(data[1][i])*int(data[1][i])
+                xy=xy+int(data[user][i])*int(data[j][i])
+                x1=x1+int(data[user][i])*int(data[user][i])
                 y1=y1+int(data[j][i])*int(data[j][i])
             r=xy/(np.sqrt(x1)*np.sqrt(y1))
             if r>r1:
