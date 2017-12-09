@@ -17,7 +17,7 @@ try:
     row = len(list(data))
     # ind=manhatten(col,row)
     k=SimilarityMeasures()
-    dis=k.cosineSimilarity(data,1)
+    dis=k.pearsonCorrelation(data,1)
     print(dis)
     #distance=k.manhattenDistance(1,data)
     #print(distance)

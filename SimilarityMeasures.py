@@ -49,13 +49,11 @@ class SimilarityMeasures:
         return sum
 
 
-    def pearsonCorrelation_k_nearest(self,data):
-        #3 neighbours
-        arr=[]
-        r1={}
+    @multimethod(object,pandas.core.frame.DataFrame,int)
+    def pearsonCorrelation(self,data,user):
         row = self.getRow(data)
         col = self.getColoumn(data)
-
+        val=-1
         for j in range(2,col):
             p1 = 0
             count = 0
@@ -64,13 +62,15 @@ class SimilarityMeasures:
             p5 = 0
             p6 = 0
             for i in range(1,row):
-                if (int(data[1][i]) == 0 or int(data[j][i]) == 0):
+                if j==user:
                     continue
-                p1=p1+int(data[1][i])*int(data[j][i])
+                if (int(data[user][i]) == 0 or int(data[j][i]) == 0):
+                    continue
+                p1=p1+int(data[user][i])*int(data[j][i])
                 count=count+1
-                p2=int(p2+int(data[1][i]))
+                p2=int(p2+int(data[user][i]))
                 p3=int(p3+int(data[j][i]))
-                p5 = int(p5 + int(data[1][i]) * int(data[1][i]))
+                p5 = int(p5 + int(data[user][i]) * int(data[user][i]))
                 p6 = int(p6 + int(data[j][i]) * int(data[j][i]))
             if count>0:
                 p4=p2*p3/count
@@ -80,22 +80,39 @@ class SimilarityMeasures:
                 k1=np.sqrt(p5-p2)
                 k2=np.sqrt(p6-p3)
                 r=p1/(k1*k2)
-                if  len(arr)>=3 :
-                    if r>arr[2]:
-                        arr.append(r)
-                        r1.update({r:j})
-                        arr.sort(reverse=True)
-                        arr.pop()
-                else:
-                    arr.append(r)
-                    r1.update({r:j})
-                    arr.sort(reverse=True)
-        sum=arr[0]+arr[1]+arr[2]
-        k1=arr[0]/sum
-        k2=arr[1]/sum
-        k3=arr[2]/sum
-        Models.k_near_recommend(k1,k2,k3,r1[arr[0]],r1[arr[1]],r1[arr[2]],row,data)
-        return
+                if r>val:
+                    val=r
+                    indexSimilar=j
+                print(r, j)
+        return indexSimilar
+
+    @multimethod(object,pandas.core.frame.DataFrame,int,int)
+    def pearsonCorrelation(self,data,user1,user2):
+        row = self.getRow(data)
+        p1 = 0
+        count = 0
+        p2 = 0
+        p3 = 0
+        p5 = 0
+        p6 = 0
+        for i in range(1,row):
+            if (int(data[user1][i]) == 0 or int(data[user2][i]) == 0):
+                continue
+            p1=p1+int(data[user1][i])*int(data[user2][i])
+            count=count+1
+            p2=int(p2+int(data[user1][i]))
+            p3=int(p3+int(data[user2][i]))
+            p5 = int(p5 + int(data[user1][i]) * int(data[user1][i]))
+            p6 = int(p6 + int(data[user2][i]) * int(data[user2][i]))
+        if count>0:
+            p4=p2*p3/count
+            p1=p1-p4
+            p2=p2*p2/count
+            p3=p3*p3/count
+            k1=np.sqrt(p5-p2)
+            k2=np.sqrt(p6-p3)
+            r=p1/(k1*k2)
+        return  r
 
     @multimethod(object,pandas.core.frame.DataFrame,int,int)
     def cosineSimilarity(self, data,user1,user2):
